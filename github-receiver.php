@@ -151,6 +151,8 @@ class CFTP_Github_Webhook_Receiver {
 		if ( ! isset( $wp->query_vars[ 'cftp_github_webhook' ] ) || ! $wp->query_vars[ 'cftp_github_webhook' ] )
 			return;
 
+		error_log( "We're in action" );
+		
 		// Check remote IP address is whitelisted
 		if ( ! in_array( $_SERVER[ 'REMOTE_ADDR' ], $this->allowed_remote_ips ) )
 			return $this->terminate_failure( 'Unrecognised IP address' );
@@ -180,9 +182,10 @@ class CFTP_Github_Webhook_Receiver {
 			return $this->terminate_failure( 'No payload data found' );
 
 		// Process the commits now
-		error_log( "POSTed data: " . print_r( $_POST, true ) );
+		$log = "POSTed data: " . print_r( $_POST, true );
 		$payload = json_decode( $_POST[ 'payload' ] );
-		error_log( "Payload: " . print_r( $payload, true ) );
+		$log .= "Payload: " . print_r( $payload, true );
+		wp_mail( 'simonw@codeforthepeople.com', 'Error log', $log );
 		foreach ( $payload->commits as & $commit_data )
 			$this->process_commit_data( $commit_data );
 		
