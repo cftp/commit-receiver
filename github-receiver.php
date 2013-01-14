@@ -181,8 +181,9 @@ class CFTP_Github_Webhook_Receiver {
 
 		// Process the commits now
 		$payload = json_decode( $_POST[ 'payload' ] );
-		foreach ( $payload->commits as & $commit_data )
-			$this->process_commit_data( $commit_data );
+		if ( isset( $payload->commits ) && is_array( $payload->commits ) )
+			foreach ( $payload->commits as & $commit_data )
+				$this->process_commit_data( $commit_data );
 		
 		$this->terminate_ok();
 	}
