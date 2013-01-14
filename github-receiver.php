@@ -180,12 +180,12 @@ class CFTP_Github_Webhook_Receiver {
 		// Check for payload in the POSTed data
 		if ( ! isset( $_POST[ 'payload' ] ) || empty( $_POST[ 'payload' ] ) )
 			return $this->terminate_failure( 'No payload data found' );
-
+		
 		// Process the commits now
 		$payload = json_decode( stripslashes( $_POST[ 'payload' ] ) );
 		if ( isset( $payload->commits ) && is_array( $payload->commits ) )
 			foreach ( $payload->commits as & $commit_data )
-				$this->process_commit_data( $commit_data );
+				$this->process_commit_data( $commit_data, $payload->repository->name );
 		
 		$this->terminate_ok();
 	}
@@ -196,7 +196,7 @@ class CFTP_Github_Webhook_Receiver {
 	 * @param object $commit_data The Github commit data
 	 * @return void
 	 */
-	public function process_commit_data( $commit_data ) {
+	public function process_commit_data( $commit_data, $repo_name ) {
 
 		// Abandon merges, i.e. anything with a message starting with "Merge"
 		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
@@ -210,7 +210,7 @@ class CFTP_Github_Webhook_Receiver {
 
 		// Devise a title
 		$lines = explode( "\n", $commit_data->message );
-		$post_title = strip_tags( $lines[ 0 ] );
+		$post_title = "[$repo_name] " . $commit_data->author->name . ' – ' . strip_tags( $lines[ 0 ] );
 		
 		// Create the post
 		$post_data = array(
