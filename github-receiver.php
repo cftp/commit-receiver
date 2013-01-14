@@ -233,6 +233,7 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return void
 	 */
 	public function terminate_failure( $msg = "Bad Request" ) {
+		error_log( "Github webhook failed, Message: $msg" );
 		status_header( 400 );
 		echo strip_tags( $msg );
 		exit;
