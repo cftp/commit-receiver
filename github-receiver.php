@@ -245,6 +245,7 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return void
 	 */
 	public function terminate_ok() {
+		error_log( "Github webhook succeeded" );
 		status_header( 200 );
 		echo "OK";
 		exit;
