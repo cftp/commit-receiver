@@ -151,8 +151,6 @@ class CFTP_Github_Webhook_Receiver {
 		if ( ! isset( $wp->query_vars[ 'cftp_github_webhook' ] ) || ! $wp->query_vars[ 'cftp_github_webhook' ] )
 			return;
 
-		error_log( "We're in action" );
-		
 		// Check remote IP address is whitelisted
 		if ( ! in_array( $_SERVER[ 'REMOTE_ADDR' ], $this->allowed_remote_ips ) )
 			return $this->terminate_failure( 'Unrecognised IP address' );
@@ -182,10 +180,7 @@ class CFTP_Github_Webhook_Receiver {
 			return $this->terminate_failure( 'No payload data found' );
 
 		// Process the commits now
-		$log = "POSTed data: " . print_r( $_POST, true );
 		$payload = json_decode( $_POST[ 'payload' ] );
-		$log .= "Payload: " . print_r( $payload, true );
-		wp_mail( 'simonw@codeforthepeople.com', 'Error log', $log );
 		foreach ( $payload->commits as & $commit_data )
 			$this->process_commit_data( $commit_data );
 		
@@ -199,7 +194,6 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return void
 	 */
 	public function process_commit_data( $commit_data ) {
-		var_dump( $commit_data );
 
 		// Abandon merges, i.e. anything with a message starting with "Merge"
 		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
@@ -225,7 +219,6 @@ class CFTP_Github_Webhook_Receiver {
 		
 		$post_id = wp_insert_post( $post_data );
 		
-		var_dump( $post_data );
 		// Save the Github URL
 		add_post_meta( $post_id, '_github_commit_url', $commit_data->url );
 		// Save the portion of the payload remating to this commit commit portion of the payload
@@ -238,7 +231,6 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return void
 	 */
 	public function terminate_failure( $msg = "Bad Request" ) {
-		error_log( "Github webhook failed, Message: $msg" );
 		status_header( 400 );
 		echo strip_tags( $msg );
 		exit;
@@ -250,7 +242,6 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return void
 	 */
 	public function terminate_ok() {
-		error_log( "Github webhook succeeded" );
 		status_header( 200 );
 		echo "OK";
 		exit;
