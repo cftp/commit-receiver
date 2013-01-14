@@ -141,6 +141,8 @@ class CFTP_Github_Webhook_Receiver {
 	}
 
 	/**
+	 * Detect and process any webhook pings before WP_Query 
+	 * gets involved.
 	 * 
 	 * @action parse_request 
 	 * 
