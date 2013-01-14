@@ -180,7 +180,9 @@ class CFTP_Github_Webhook_Receiver {
 			return $this->terminate_failure( 'No payload data found' );
 
 		// Process the commits
+		error_log( "POSTed data: " . print_r( $_POST, true ) );
 		$payload = json_decode( $_POST[ 'payload' ] );
+		error_log( "Payload: " . print_r( $payload, true ) );
 		foreach ( $payload->commits as & $commit_data )
 			$this->process_commit_data( $commit_data );
 		
