@@ -179,7 +179,7 @@ class CFTP_Github_Webhook_Receiver {
 		if ( ! isset( $_POST[ 'payload' ] ) || empty( $_POST[ 'payload' ] ) )
 			return $this->terminate_failure( 'No payload data found' );
 
-		// Process the commits
+		// Process the commits now
 		error_log( "POSTed data: " . print_r( $_POST, true ) );
 		$payload = json_decode( $_POST[ 'payload' ] );
 		error_log( "Payload: " . print_r( $payload, true ) );
