@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * Aggie
+ * Aggie, the aggregation theme
  *
  * @package Aggie
  * @subpackage Main
