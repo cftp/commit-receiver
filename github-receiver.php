@@ -189,9 +189,12 @@ class CFTP_Github_Webhook_Receiver {
 		
 		// Process the commits now
 		$payload = json_decode( stripslashes( $_POST[ 'payload' ] ) );
+
+		// Work out the branch path
+		$branch_path = str_replace( 'refs/heads', '', $payload->ref );
 		if ( isset( $payload->commits ) && is_array( $payload->commits ) )
 			foreach ( $payload->commits as & $commit_data )
-				$this->process_commit_data( $commit_data, $payload->repository->name );
+				$this->process_commit_data( $commit_data, $payload->repository->name, $branch_path );
 		
 		$this->terminate_ok();
 	}
@@ -200,9 +203,11 @@ class CFTP_Github_Webhook_Receiver {
 	 * Create the WP post object for a Github commit.
 	 * 
 	 * @param object $commit_data The Github commit data
+	 * @param string $repo_name The repo name
+	 * @param string $branch_path The branch path
 	 * @return void
 	 */
-	public function process_commit_data( $commit_data, $repo_name ) {
+	public function process_commit_data( $commit_data, $repo_name, $branch_path ) {
 
 		// Abandon merges, i.e. anything with a message starting with "Merge"
 		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
@@ -216,7 +221,7 @@ class CFTP_Github_Webhook_Receiver {
 
 		// Devise a title
 		$lines = explode( "\n", $commit_data->message );
-		$post_title = "[$repo_name] " . $commit_data->author->name . ' – ' . strip_tags( $lines[ 0 ] );
+		$post_title = "[{$repo_name}{$branch_path}] " . $commit_data->author->name . ' – ' . strip_tags( $lines[ 0 ] );
 		
 		// Create the post
 		$post_data = array(
