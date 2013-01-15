@@ -1,0 +1,33 @@
+# This is an example portion of a .htaccess file which will
+# allow you to protect a site with basic HTTP authentication
+# even if it's part of a WordPress multisite setup by
+# detecting the domain name being accessed.
+# The rules also allow unauthenticated access to the Aggie
+# theme's short links.
+
+# Detect Aggie's domain host and set an environment var as a flag
+SetEnvIf Host aggie\.general\.puffbox\.vc\.catn\.com$ AGGIE
+
+# Detect the redirect links, and set an env var flag
+SetEnvIf Request_URI ^/gh/[0-9]+/?$ AGGIE_REDIRECT
+
+Order deny,allow
+
+# Detect the Aggie environment var
+Deny from env=AGGIE
+# Allow the redirects we've detected
+Allow from env=AGGIE_REDIRECT
+
+Satisfy any
+AuthType Basic
+AuthName "Nothing to see here. Move along, please"
+# This path is specific to the server in question
+AuthUserFile /sites/puffbox-general/http/.htpasswd
+Require valid-user
+
+# Deny everyone HTTP access to the htpasswd file
+<Files .htpasswd>
+	Order allow,deny
+	Deny from all
+	Satisfy All
+</Files>
