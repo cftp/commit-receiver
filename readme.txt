@@ -11,3 +11,4 @@ Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordP
 2. Copy the github-receiver directory into your plugins folder.
 3. Visit your Plugins page and activate the plugin.
 4. Set the Webhook for your Github repos to http://[yourdomain.com]/github-receiver
+
