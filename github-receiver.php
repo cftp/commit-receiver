@@ -3,7 +3,7 @@
 Plugin Name: Github Receiver
 Plugin URI: https://github.com/cftp/github-receiver
 Description: Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordPress to create a post for each Github commit.
-Version: 1.0
+Version: 1.1
 Author: Code for the People
 Author URI: http://www.codeforthepeople.com/ 
 */
@@ -213,12 +213,10 @@ class CFTP_Github_Webhook_Receiver {
 		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
 			return;
 
-		// Get the date in UTC/GMT
-		// e.g. '2013-01-14T04:27:53-08:00'
-		$datetime_gmt = DateTime::createFromFormat( DATE_ATOM, $commit_data->timestamp ); 
-		$UTC = new DateTimeZone( 'UTC' );
-		$datetime_gmt->setTimezone( $UTC );
-
+		// N.B. Posts get inserted in the order they are received, i.e.
+		// we don't set the post_date to the commit date as this proved
+		// to cause issues with the RSS feed.
+		
 		// Devise a title
 		$lines = explode( "\n", $commit_data->message );
 		$post_title = "[{$repo_name}{$branch_path}] " . $commit_data->author->name . ' – ' . strip_tags( $lines[ 0 ] );
@@ -226,7 +224,6 @@ class CFTP_Github_Webhook_Receiver {
 		// Create the post
 		$post_data = array(
 			'post_title' => $post_title, 
-			'post_date_gmt' => $datetime_gmt->format( 'Y-m-d H:i:s' ),
 			'post_content' => wp_kses( $commit_data->message, $GLOBALS[ 'allowedposttags' ] ),
 			'post_status' => 'publish',
 		);

@@ -12,3 +12,14 @@ Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordP
 3. Visit your Plugins page and activate the plugin.
 4. Set the Webhook for your Github repos to http://[yourdomain.com]/github-receiver
 
+== Changelog ==
+
+= 1.1 =
+
+Tuesday, 29 January 2013
+
+* Stop setting the `post_date` to the commit date
+
+= 1.0 =
+
+* Initial release.
