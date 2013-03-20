@@ -92,12 +92,12 @@ class CFTP_Github_Webhook_Receiver {
 		add_filter( 'query_vars',     array( $this, 'filter_query_vars' ) );
 
 		$this->version = 1;
-		$this->allowed_remote_ips = array( 
-			'108.171.174.178', 
-			'207.97.227.253', 
-			'50.57.128.197', 
-			'50.57.231.61,' 
-		);
+		// $this->allowed_remote_ips = array( 
+		// 	'108.171.174.178', 
+		// 	'207.97.227.253', 
+		// 	'50.57.128.197', 
+		// 	'50.57.231.61,' 
+		// );
 	}
 
 	// HOOKS
@@ -154,8 +154,8 @@ class CFTP_Github_Webhook_Receiver {
 			return;
 
 		// Check remote IP address is whitelisted
-		if ( ! in_array( $_SERVER[ 'REMOTE_ADDR' ], $this->allowed_remote_ips ) )
-			return $this->terminate_failure( 'Unrecognised IP address' );
+		// if ( ! in_array( $_SERVER[ 'REMOTE_ADDR' ], $this->allowed_remote_ips ) )
+		// 	return $this->terminate_failure( 'Unrecognised IP address' );
 
 		// Process any ping we've just received
 		// Check for Github X-Github-Event of "push"
