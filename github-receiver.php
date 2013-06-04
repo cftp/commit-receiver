@@ -160,7 +160,7 @@ class CFTP_Github_Webhook_Receiver {
 		// Process any ping we've just received
 		// Check for Github X-Github-Event of "push"
 		$http_headers = getallheaders();
-		if ( isset( $http_headers[ 'X-Github-Event' ] ) && 'push' == $http_headers[ 'X-Github-Event' ] )
+		if ( isset( $http_headers[ 'X-GitHub-Event' ] ) && 'push' == $http_headers[ 'X-GitHub-Event' ] )
 			return $this->process_push();
 
 		// Either there is no X-Github-Event header, or we don't
