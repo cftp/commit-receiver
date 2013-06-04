@@ -1,7 +1,7 @@
 === Github Receiver ===
 Contributors: cftp, simonwheatley
 Tested up to: 3.5
-Stable tag: 1.2
+Stable tag: 1.3
 Requires at least: 3.5
 
 Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordPress to create a post for each Github commit.
@@ -13,6 +13,12 @@ Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordP
 4. Set the Webhook for your Github repos to http://[yourdomain.com]/github-receiver
 
 == Changelog ==
+
+= 1.3 =
+
+Tuesday, 4 June 2013
+
+* Quick fix: Check against the correct header from GitHub (capitalization matters)
 
 = 1.2 =
 
