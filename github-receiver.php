@@ -3,7 +3,7 @@
 Plugin Name: Github Receiver
 Plugin URI: https://github.com/cftp/github-receiver
 Description: Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordPress to create a post for each Github commit.
-Version: 1.2
+Version: 1.3
 Author: Code for the People
 Author URI: http://www.codeforthepeople.com/ 
 */
@@ -158,9 +158,9 @@ class CFTP_Github_Webhook_Receiver {
 		// 	return $this->terminate_failure( 'Unrecognised IP address' );
 
 		// Process any ping we've just received
-		// Check for Github X-Github-Event of "push"
+		// Check for Github X-GitHub-Event of "push"
 		$http_headers = getallheaders();
-		if ( isset( $http_headers[ 'X-Github-Event' ] ) && 'push' == $http_headers[ 'X-Github-Event' ] )
+		if ( isset( $http_headers[ 'X-GitHub-Event' ] ) && 'push' == $http_headers[ 'X-GitHub-Event' ] )
 			return $this->process_push();
 
 		// Either there is no X-Github-Event header, or we don't
