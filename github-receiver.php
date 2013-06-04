@@ -158,7 +158,7 @@ class CFTP_Github_Webhook_Receiver {
 		// 	return $this->terminate_failure( 'Unrecognised IP address' );
 
 		// Process any ping we've just received
-		// Check for Github X-Github-Event of "push"
+		// Check for Github X-GitHub-Event of "push"
 		$http_headers = getallheaders();
 		if ( isset( $http_headers[ 'X-GitHub-Event' ] ) && 'push' == $http_headers[ 'X-GitHub-Event' ] )
 			return $this->process_push();
