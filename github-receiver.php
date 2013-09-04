@@ -112,7 +112,8 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return void
 	 */
 	public function action_init() {
-		add_rewrite_rule( 'github-receiver/?$', 'index.php?cftp_github_webhook=1', 'top' );
+		add_rewrite_rule( 'commit-receiver/?$', 'index.php?cftp_commit_webhook=1', 'top' );
+		add_rewrite_rule( 'github-receiver/?$', 'index.php?cftp_commit_webhook=1', 'top' );
 	}
 	
 	/**
@@ -128,7 +129,7 @@ class CFTP_Github_Webhook_Receiver {
 	}
 
 	/**
-	 * Adds the cftp_github_webhook query var to WordPress.
+	 * Adds the cftp_commit_webhook query var to WordPress.
 	 * 
 	 * @filter query_vars
 	 * 
@@ -136,7 +137,7 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return array The Query Vars
 	 */
 	function filter_query_vars( $query_vars ) {
-		$query_vars[] = 'cftp_github_webhook';
+		$query_vars[] = 'cftp_commit_webhook';
 		return $query_vars;
 	}
 
@@ -150,7 +151,7 @@ class CFTP_Github_Webhook_Receiver {
 	 * @return void
 	 **/
 	public function action_parse_request( $wp ) {
-		if ( ! isset( $wp->query_vars[ 'cftp_github_webhook' ] ) || ! $wp->query_vars[ 'cftp_github_webhook' ] )
+		if ( ! isset( $wp->query_vars[ 'cftp_commit_webhook' ] ) || ! $wp->query_vars[ 'cftp_commit_webhook' ] )
 			return;
 
 		// Check remote IP address is whitelisted
