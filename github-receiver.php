@@ -165,7 +165,7 @@ class CFTP_Github_Webhook_Receiver {
 
 		// Either there is no X-Github-Event header, or we don't
 		// yet deal with this event type.
-		return $this->terminate_failure( 'Unrecognised event' );
+		return $this->terminate_failure( 'Unrecognised event: ' . $http_headers[ 'X-GitHub-Event' ] );
 	}
 	
 	// METHODS
