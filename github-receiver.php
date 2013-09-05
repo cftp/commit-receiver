@@ -209,7 +209,30 @@ class CFTP_Github_Webhook_Receiver {
 		
 		$this->terminate_ok();
 	}
-	
+
+	/**
+	 * Process a push type of webhook ping from GitLab.
+	 * 
+	 * @return void
+	 */
+	public function process_gitlab_push( $raw_body ) {
+		$payload = json_decode( $raw_body );
+		if ( is_null( $payload ) )
+			return $this->terminate_failure( 'No payload data found' );
+
+		// Check for payload in the POSTed data
+		if ( ! isset( $payload->commits ) || ! is_array( $payload->commits ) )
+			return $this->terminate_failure( 'No commits found' );
+		
+		// Work out the branch path
+		$branch_path = str_replace( 'refs/heads', '', $payload->ref );
+		if ( isset( $payload->commits ) && is_array( $payload->commits ) )
+			foreach ( $payload->commits as & $commit_data )
+				$this->process_commit_data( $commit_data, $payload->repository->name, $branch_path );
+		
+		$this->terminate_ok();
+	}
+
 	/**
 	 * Create the WP post object for a GitHub commit.
 	 * 
@@ -218,7 +241,7 @@ class CFTP_Github_Webhook_Receiver {
 	 * @param string $branch_path The branch path
 	 * @return void
 	 */
-	public function process_github_commit_data( $commit_data, $repo_name, $branch_path ) {
+	public function process_commit_data( $commit_data, $repo_name, $branch_path ) {
 
 		// Abandon merges, i.e. anything with a message starting with "Merge"
 		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
@@ -247,33 +270,6 @@ class CFTP_Github_Webhook_Receiver {
 		add_post_meta( $post_id, '_github_commit_data', $commit_data );
 	}
 
-		// Abandon merges, i.e. anything with a message starting with "Merge"
-		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
-			return;
-
-		// N.B. Posts get inserted in the order they are received, i.e.
-		// we don't set the post_date to the commit date as this proved
-		// to cause issues with the RSS feed.
-		
-		// Devise a title
-		$lines = explode( "\n", $commit_data->message );
-		$post_title = "[{$repo_name}{$branch_path}] " . $commit_data->author->name . ' – ' . strip_tags( $lines[ 0 ] );
-		
-		// Create the post
-		$post_data = array(
-			'post_title' => $post_title, 
-			'post_content' => wp_kses( $commit_data->message, $GLOBALS[ 'allowedposttags' ] ),
-			'post_status' => 'publish',
-		);
-		
-		$post_id = wp_insert_post( $post_data );
-		
-		// Save the Github URL
-		add_post_meta( $post_id, '_github_commit_url', $commit_data->url );
-		// Save the portion of the payload remating to this commit commit portion of the payload
-		add_post_meta( $post_id, '_github_commit_data', $commit_data );
-	}
-	
 	/**
 	 * Return HTTP Status 400 and a text message, then exit.
 	 * 
