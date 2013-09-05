@@ -3,7 +3,7 @@
 Plugin Name: Github Receiver
 Plugin URI: https://github.com/cftp/github-receiver
 Description: Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordPress to create a post for each Github commit.
-Version: 1.2
+Version: 1.3
 Author: Code for the People
 Author URI: http://www.codeforthepeople.com/ 
 */

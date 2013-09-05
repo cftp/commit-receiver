@@ -15,6 +15,10 @@ Provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordP
 
 ## Changelog
 
+### 1.3 
+
+* Accept GitLab commits
+
 ### 1.2 
 
 * Quick fix: Stop checking the IP addresses, there's too many now
