@@ -26,6 +26,9 @@ Author URI: http://www.codeforthepeople.com/
 
 */
 
+if ( defined( 'WP_CLI' ) && WP_CLI && is_readable( $wp_cli = dirname( __FILE__ ) . '/class-wp-cli.php' ) )
+	require_once $wp_cli;
+
 /**
  * Github Webhook Receiver
  *
