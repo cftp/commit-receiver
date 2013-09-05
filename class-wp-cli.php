@@ -57,7 +57,7 @@ class CFTP_CR_Command extends WP_CLI_Command {
 			return \WP_CLI::error( $response->get_error_message() );
 
 		if ( 200 != wp_remote_retrieve_response_code( $response ) )
-			return \WP_CLI::error( sprintf( 'The URL %s responded with %s', $url, wp_remote_retrieve_response_code( $response ) ) );
+			return \WP_CLI::error( sprintf( 'The URL %s responded with %s (%s)', $url, wp_remote_retrieve_response_code( $response ), wp_remote_retrieve_body( $response ) ) );
 
 		\WP_CLI::success( "It's all worked" );		
 	}
