@@ -167,9 +167,16 @@ class CFTP_Github_Webhook_Receiver {
 		if ( isset( $_SERVER[ 'HTTP_X_GITHUB_EVENT' ] ) && 'push' == $_SERVER[ 'HTTP_X_GITHUB_EVENT' ] )
 			return $this->process_github_push();
 
+		$raw_body = file_get_contents( 'php://input' );
+
+		// Gitlab sends the commit data in the raw POST body. Nice.
+		// Gitlab sends no identifying HTTP headers or POST fields. Nice.
+		if ( stristr( $raw_body, '"url":"https://gitlab.com/' ) )
+			return $this->process_gitlab_push( $raw_body );
+
 		// Either there is no X-Github-Event header, or we don't
 		// yet deal with this event type.
-		return $this->terminate_failure( 'Unrecognised event: ' . $http_headers[ 'X-GitHub-Event' ] );
+		return $this->terminate_failure( 'Unrecognised event' );
 	}
 	
 	// METHODS
