@@ -162,10 +162,10 @@ class CFTP_Github_Webhook_Receiver {
 		// 	return $this->terminate_failure( 'Unrecognised IP address' );
 
 		// Process any ping we've just received
+
 		// Check for Github X-Github-Event of "push"
-		$http_headers = getallheaders();
-		if ( isset( $http_headers[ 'X-GitHub-Event' ] ) && 'push' == $http_headers[ 'X-GitHub-Event' ] )
-			return $this->process_push();
+		if ( isset( $_SERVER[ 'HTTP_X_GITHUB_EVENT' ] ) && 'push' == $_SERVER[ 'HTTP_X_GITHUB_EVENT' ] )
+			return $this->process_github_push();
 
 		// Either there is no X-Github-Event header, or we don't
 		// yet deal with this event type.
@@ -176,11 +176,11 @@ class CFTP_Github_Webhook_Receiver {
 	// =======
 	
 	/**
-	 * Process a push type of webhook ping from Github.
+	 * Process a push type of webhook ping from GitHub.
 	 * 
 	 * @return void
 	 */
-	public function process_push() {
+	public function process_github_push() {
 
 //		// Test data from the master branch
 //		 $_POST[ 'payload' ] = addslashes( '{ "after": "9b3c2d184f342c6192c55db94a243b9b0567cad6", "before": "9051e4c888b9ea89cd43d60ce1e1f75576e1c0de", "commits": [ { "added": [], "author": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "committer": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "distinct": true, "id": "4b3cc0bd8ebf860e44c5ed633c5f2e053f9e2220", "message": "Triggering a commit", "modified": [ "github-receiver.php" ], "removed": [], "timestamp": "2013-01-14T10:10:14-08:00", "url": "https://github.com/cftp/github-receiver/commit/4b3cc0bd8ebf860e44c5ed633c5f2e053f9e2220" }, { "added": [ "readme.txt" ], "author": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "committer": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "distinct": true, "id": "d8238360794a339ee061333107216060b3404359", "message": "Rename readme file.", "modified": [], "removed": [ "readme.md" ], "timestamp": "2013-01-14T10:11:01-08:00", "url": "https://github.com/cftp/github-receiver/commit/d8238360794a339ee061333107216060b3404359" }, { "added": [], "author": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "committer": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "distinct": true, "id": "9b3c2d184f342c6192c55db94a243b9b0567cad6", "message": "Try emailing the log", "modified": [ "github-receiver.php" ], "removed": [], "timestamp": "2013-01-14T10:16:37-08:00", "url": "https://github.com/cftp/github-receiver/commit/9b3c2d184f342c6192c55db94a243b9b0567cad6" } ], "compare": "https://github.com/cftp/github-receiver/compare/9051e4c888b9...9b3c2d184f34", "created": false, "deleted": false, "forced": false, "head_commit": { "added": [], "author": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "committer": { "email": "simon@sweetinteraction.com", "name": "Simon Wheatley", "username": "simonwheatley" }, "distinct": true, "id": "9b3c2d184f342c6192c55db94a243b9b0567cad6", "message": "Try emailing the log", "modified": [ "github-receiver.php" ], "removed": [], "timestamp": "2013-01-14T10:16:37-08:00", "url": "https://github.com/cftp/github-receiver/commit/9b3c2d184f342c6192c55db94a243b9b0567cad6" }, "hook_callpath": "new", "pusher": { "name": "none" }, "ref": "refs/heads/master", "repository": { "created_at": "2013-01-14T09:13:17-08:00", "description": "A WordPress plugin that provides an endpoint for the Github Post-Receive Webhook to ping, allowing WordPress to create a post for each Github commit.", "fork": false, "forks": 0, "has_downloads": true, "has_issues": true, "has_wiki": true, "id": 7608771, "name": "github-receiver", "open_issues": 0, "organization": "cftp", "owner": { "email": null, "name": "cftp" }, "private": false, "pushed_at": "2013-01-14T10:16:43-08:00", "size": 112, "stargazers": 0, "url": "https://github.com/cftp/github-receiver", "watchers": 0 } }' );
@@ -204,14 +204,41 @@ class CFTP_Github_Webhook_Receiver {
 	}
 	
 	/**
-	 * Create the WP post object for a Github commit.
+	 * Create the WP post object for a GitHub commit.
 	 * 
 	 * @param object $commit_data The Github commit data
 	 * @param string $repo_name The repo name
 	 * @param string $branch_path The branch path
 	 * @return void
 	 */
-	public function process_commit_data( $commit_data, $repo_name, $branch_path ) {
+	public function process_github_commit_data( $commit_data, $repo_name, $branch_path ) {
+
+		// Abandon merges, i.e. anything with a message starting with "Merge"
+		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
+			return;
+
+		// N.B. Posts get inserted in the order they are received, i.e.
+		// we don't set the post_date to the commit date as this proved
+		// to cause issues with the RSS feed.
+		
+		// Devise a title
+		$lines = explode( "\n", $commit_data->message );
+		$post_title = "[{$repo_name}{$branch_path}] " . $commit_data->author->name . ' – ' . strip_tags( $lines[ 0 ] );
+		
+		// Create the post
+		$post_data = array(
+			'post_title' => $post_title, 
+			'post_content' => wp_kses( $commit_data->message, $GLOBALS[ 'allowedposttags' ] ),
+			'post_status' => 'publish',
+		);
+		
+		$post_id = wp_insert_post( $post_data );
+		
+		// Save the Github URL
+		add_post_meta( $post_id, '_github_commit_url', $commit_data->url );
+		// Save the portion of the payload remating to this commit commit portion of the payload
+		add_post_meta( $post_id, '_github_commit_data', $commit_data );
+	}
 
 		// Abandon merges, i.e. anything with a message starting with "Merge"
 		if ( 'Merge' == substr( $commit_data->message, 0, 5 ) )
